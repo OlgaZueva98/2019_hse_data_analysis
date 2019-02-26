@@ -1,0 +1,56 @@
+title: "hw5_CA_MCA"
+author: "Olga Zueva"
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(ca)
+library(dplyr)
+library(ggplot2)
+library(ggfortify)
+
+##5.1
+```{r}
+
+data <- read.csv("https://raw.githubusercontent.com/agricolamz/2019_data_analysis_for_linguists/master/data/students/OlgaZueva98/hw5_CA_MCA/hw5_chairs.csv")
+myvars <- names(data) %in% c("Shop", "WordDE", "Category")
+newdata <- data[!myvars]
+MCA <- MASS::mca(newdata)
+data <- cbind(data, MCA$rs)
+variables <- as_data_frame(MCA$cs)
+variables$var_names <- rownames(MCA$cs)
+data %>% 
+  ggplot(aes(`1`, `2`))+
+  geom_point(aes(color = Category))+
+  stat_ellipse(aes(color = Category))+
+  geom_text(data = variables, aes(`1`, `2`, label = var_names))+
+  theme_bw()+
+  scale_x_continuous(limits = c(-0.015, 0.02))
+
+##5.3
+```{r}
+
+data_2 <- read.csv('https://raw.githubusercontent.com/agricolamz/2019_data_analysis_for_linguists/master/data/students/OlgaZueva98/hw5_CA_MCA/hw5_colreg.csv')
+rownames(data_2) <- data_2$colors
+ca <- ca(data_2[, -5])
+data_2_col <- data.frame(ca$colcoord)
+data_2_col$rows <- rownames(ca$colcoord)
+
+data_2_row <- data.frame(ca$rowcoord)
+data_2_row$rows <- rownames(ca$rowcoord)
+
+data_2_col %>% 
+  ggplot(aes(Dim1, Dim2, label = rows))+
+  geom_text(color = "darkblue")+
+  geom_text(data = data_2_row, color = "red")+
+  theme_bw()+
+  labs(x = "Dim1 (42.1%)",
+       y = "Dim2 (32.6%)")
+
+PCA <- prcomp(data_2[, -5])
+autoplot(PCA,
+         shape = FALSE,
+         loadings = TRUE,
+         label = TRUE,
+         loadings.label = TRUE)
