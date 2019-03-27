@@ -1,0 +1,36 @@
+title: "hw4_Advanced_Bayesian"
+author: "Olga Zueva"
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+
+library(tidyverse)
+data <- read.csv('https://raw.githubusercontent.com/agricolamz/2019_data_analysis_for_linguists/master/data/students/OlgaZueva98/hw4_Advanced_Bayesian/hw4_caretta.csv')
+data_brs02 <- filter(data, speaker == 'brs02') 
+data_tt01 <- filter(data, speaker == 'tt01')
+
+mean_brs02 <- mean(data_brs02$vowel.dur)
+apr_mean_brs02 <- mean(data_brs02$vowel.dur, 0.10)
+sd_brs02 <- sd(data_brs02$vowel.dur)
+apos_mean_brs02 <- weighted.mean(c(apr_mean_brs02, mean_brs02), c(1/sd_brs02, 1/sd_brs02))
+apos_sd_brs02 <- (1/sd_brs02+1/sd_brs02)^(-1)                       
+
+mean_tt01 <- mean(data_tt01$vowel.dur)
+apr_mean_tt01 <- mean(data_tt01$vowel.dur, 0.10)
+sd_tt01 <- sd(data_tt01$vowel.dur)
+apos_mean_tt01 <- weighted.mean(c(apr_mean_tt01, mean_tt01), c(1/sd_tt01, 1/sd_tt01))
+apos_sd_tt01 <- (1/sd_tt01+1/sd_tt01)^(-1)  
+
+##4.1
+```{r}
+
+data.frame(apos_mean_brs02, apos_sd_brs02)
+
+##4.2
+```{r}
+
+lower_tt01 <- qnorm(.025, apos_mean_tt01, apos_sd_tt01)
+upper_tt01 <- qnorm(.975, apos_mean_tt01, apos_sd_tt01)
+
+data.frame(lower_tt01, upper_tt01)
